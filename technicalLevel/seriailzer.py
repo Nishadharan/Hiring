@@ -1,12 +1,7 @@
 from rest_framework import serializers
 from .models import TechnicalInterviewTable, SkillsTable
+from rest_framework.response import Response
 
-class TechnicalInterviewSerializer(serializers.ModelSerializer):
-    id =serializers.IntegerField(required=False)
-    class Meta:
-        model = TechnicalInterviewTable
-        fields = '__all__'
-        
 class SkillsSerializer(serializers.ModelSerializer):
     
     class Meta:
@@ -14,6 +9,27 @@ class SkillsSerializer(serializers.ModelSerializer):
         fields = '__all__'
         # fields = ['id','skills', 'proficiency', 'ratingoutof10', 'comments']
 
+class TechnicalInterviewSerializer(serializers.ModelSerializer):
+    id =serializers.IntegerField(required=False)
+    skills=SkillsSerializer(many=True)
+    class Meta:
+        model = TechnicalInterviewTable
+        # fields = '__all__
+        fields = ['id', 'candidateName', 'resumeId', 'strength', 'weakness', 'shortlistStatus', 'submissionStatus', 'overall_comments', 'overall_rating', 'remarks', 'skills']
+    
+    def create(self, validated_data):
+        
+        skills_data = validated_data.pop('skills', [])
+        try:
+            technical_interview = TechnicalInterviewTable.objects.create(**validated_data)
+        except:
+            print('in catch block')
+            return Response({"message":"Data already exist"})
+        for skill_data in skills_data:
+            SkillsTable.objects.create(techReview=technical_interview, **skill_data)
+        return technical_interview
+    
+    
 class updateSkillsSerializer(serializers.ModelSerializer):
     id =serializers.IntegerField(required=False)
     class Meta:

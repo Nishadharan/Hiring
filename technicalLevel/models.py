@@ -4,7 +4,7 @@ from django.db import models
 class TechnicalInterviewTable(models.Model):
    
     candidateName = models.CharField(max_length=100, null=True)
-    resumeId = models.CharField(max_length=100, null=True)
+    resumeId = models.CharField(max_length=100, null=True, unique=True)
     # resume = models.FileField(null=True)
     strength = models.CharField(max_length=150, null=True)
     weakness = models.CharField(max_length=150, null=True)

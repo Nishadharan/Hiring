@@ -4,5 +4,5 @@ from HRLevel.evaluationLevel.views import (CandidateForFinalEval, finalEvaluatio
 urlpatterns = [
     path('CandidateForFinalEval/',CandidateForFinalEval.as_view(),name='getCandidateForFinalEval'),
     path('finalEvaluation/',finalEvaluation.as_view(),name='finalEvaluation'),
-    path('finalEvalById/<int:pk>',finalEvalById.as_view(),name='finalEvalById'),
+    path('finalEvalById/<str:pk>',finalEvalById.as_view(),name='finalEvalById'),
 ]

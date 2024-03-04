@@ -55,10 +55,12 @@ class candidate_info(models.Model):
     remarks = models.CharField(max_length=500, null=True)
     # SAVED SUBMITTED
     # submissionStatus=models.CharField(max_length=20, default=constants.SAVE, null=True)
-    submissionStatus=models.CharField(max_length=20, null=True)
+    recruiterSubmissionStatus=models.CharField(max_length=20, null=True)
     #JSON DATA RECEIVED:
     # {'Name': 'Jane Smith', 'Email': 'janesmith@email.com', 'Resume_score': 69, 'Job_Role': 'Sales', 'Experience': 8, 'phone': '555-987-6543', 'Year_of_Graduation': 'N/A'}
-
+    interviewerSubmissionStatus=models.CharField(max_length=20, null=True)
+    
+    resume_Link=models.CharField(max_length=1000, null=True)
     def __str__(self):
         return self.name
 class evaluationdata(models.Model):

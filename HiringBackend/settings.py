@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     "corsheaders",
+    
 ]
 
 MIDDLEWARE = [
@@ -63,7 +65,7 @@ ROOT_URLCONF = 'HiringBackend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'resource/build')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -93,16 +95,27 @@ WSGI_APPLICATION = 'HiringBackend.wsgi.application'
 #     }
 # }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'hiring_test',
+#         'USER': 'test',
+#         'PASSWORD':'Test@123',
+#         'HOST': '172.235.10.116',
+#         'PORT': '3306',
+#     }
+# }
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'hiring_dev',
+        'NAME': 'hiring_test',
         'USER': 'test',
         'PASSWORD':'Test@123',
         'HOST': '172.235.10.116',
         'PORT': '3306',
     }
 }
+
 
 # mail
 
@@ -149,7 +162,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+# STATIC_ROOT = 'resource/build/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -187,3 +202,14 @@ CORS_ALLOW_CREDENTIALS = True
 #     'userManagement.empIdAuth.EmpIdAuthBackend',
 #     'django.contrib.auth.backends.ModelBackend',
 # ]
+# STATICFILES_DIRS=[
+#     os.path.join(BASE_DIR, 'resource/build/')
+# ]
+
+STATICFILES_DIRS=[
+    os.path.join(BASE_DIR, 'resource/build/static'),
+    os.path.join(BASE_DIR, 'resource/build/img')
+]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'resource/build/img')

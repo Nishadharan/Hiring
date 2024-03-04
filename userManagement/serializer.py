@@ -72,27 +72,29 @@ class UpdateallUserSerializer(serializers.ModelSerializer):
     
 class loginSerializer(serializers.ModelSerializer):
     # email=serializers.EmailField(max_length=255, min_length=5)
-    tokens=serializers.SerializerMethodField()
+    # tokens=serializers.SerializerMethodField()
     password=serializers.CharField(max_length=255,min_length=8, write_only=True)
     username=serializers.CharField(max_length=255)
+    # email=serializers.EmailField(max_length=50, read_only=True)
     
-    def get_tokens(self, obj):
-        users = user.objects.get(username=obj.get('username', ''))
+    # def get_tokens(self, obj):
+    #     users = user.objects.get(username=obj.get('username', ''))
 
-        return {
-            'access_token': users.tokens()['access_token'],
-            'refresh_token': users.tokens()['refresh_token']
-        }        
+    #     return {
+    #         'access_token': users.tokens()['access_token'],
+    #         'refresh_token': users.tokens()['refresh_token']
+    #     }        
             
     class Meta:
         model=user
-        fields=['username','password','tokens']        
+        fields=['username','password', 'tokens']
         
     def validate(self, obj):
         name=obj.get('username', '')
         passWord=obj.get('password', '')
         
-        user = authenticate(request=self.context.get('request'), username=name, password=passWord)
+        # user = authenticate(request=self.context.get('request'), username=name, password=passWord)
+        user = authenticate(username=name, password=passWord, is_active=True)
         
         if not user:
             raise AuthenticationFailed('Invalid Credentials')
@@ -113,5 +115,5 @@ class loginSerializer(serializers.ModelSerializer):
 class ListOfInterviewerSerializer(serializers.ModelSerializer):
     class Meta:
         model=user
-        fields=['id', 'username']
+        fields=['id', 'username','empId']
         

@@ -9,15 +9,16 @@ from .models import TechnicalInterviewTable, SkillsTable
 from rest_framework.permissions import IsAuthenticated
 from HiringBackend.util import constants
 from HRLevel.models import candidate_info
-from HRLevel.entryLevel.serializer import AllcandidateSerializer
+from HRLevel.entryLevel.serializer import AllcandidateSerializer, candidateInfoSerializer
 
 class getCandidateForInterviewer(APIView):
     permission_classes=[IsAuthenticated]
     
     def get(self, request, *args, **kwargs):
         user_id=request.user.empId
-        candidates=candidate_info.objects.filter(currentStatus=constants.INTECH,interviewer=user_id, submissionStatus=constants.SUBMIT)
-        serializer = AllcandidateSerializer(candidates, many=True)
+        print(user_id)
+        candidates=candidate_info.objects.filter(interviewer=user_id, recruiterSubmissionStatus=constants.SUBMIT, shortlistStatus=constants.SHORTLISTED)
+        serializer = candidateInfoSerializer(candidates, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class SaveInterviewerData(APIView):
@@ -38,22 +39,29 @@ class SaveInterviewerData(APIView):
         else:
             tech_interview_serializer = TechnicalInterviewSerializer(data=payload)
             if tech_interview_serializer.is_valid():
-                tech_interview_instance = tech_interview_serializer.save()
-                
-                skills_data = request.data.get('skills', [])
-                skills_serializer = SkillsSerializer(data=skills_data, many=True)
-                if skills_serializer.is_valid():
-                    skills_serializer.save(techReview=tech_interview_instance)
-                    changeStatus(payload, constants.INFINAL)
-                    # need to change status for a candidate resume
-                    return Response({"message": "Data saved successfully."}, status=201)
-                else:
-                    tech_interview_instance.delete()  # Rollback if skills data is invalid
-                    return Response(skills_serializer.errors, status=400)
-            else:
-                return Response(tech_interview_serializer.errors, status=400)
+                tech_interview_serializer.save()
+                return Response(tech_interview_serializer.data, status=status.HTTP_201_CREATED)
+            # else:
+                # return Response({"message":"Data already exist"})
+            #     skills_data = request.data.get('skills', [])
+            #     skills_serializer = SkillsSerializer(data=skills_data, many=True)
+            #     if skills_serializer.is_valid():
+            #         skills_serializer.save(techReview=tech_interview_instance)
+            #         changeStatus(payload, constants.INFINAL)
+            #         # need to change status for a candidate resume
+            #         return Response(skills_serializer.data, status=201)
+            #     else:
+            #         tech_interview_instance.delete()  # Rollback if skills data is invalid
+            #         return Response(skills_serializer.errors, status=400)
+            # else:
+            #     return Response(tech_interview_serializer.errors, status=400)
+            
+    def get(self, request):
+        interviews = TechnicalInterviewTable.objects.all()  # Fetch all technical interviews
+        # interviews = TechnicalInterviewTable.objects.prefetch_related('skills').all() 
+        serializer = getTechnicalInterviewSerializer(interviews, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
         
-
 def changeStatus(payload, statusMessage):
     permission_classes = [IsAuthenticated]
     if payload.get('submissionStatus',None)==constants.SUBMIT:
@@ -62,30 +70,15 @@ def changeStatus(payload, statusMessage):
             except candidate_info.DoesNotExist:
                 return Response({'Message':'no data with this resumeId'})
             candidate.currentStatus=statusMessage
-            candidate.save()  
-        
-            
-            
-            
-            
-            
-        
-         
-        
-                
-    def get(self, request):
-        interviews = TechnicalInterviewTable.objects.all()  # Fetch all technical interviews
-        # interviews = TechnicalInterviewTable.objects.prefetch_related('skills').all() 
-        serializer = getTechnicalInterviewSerializer(interviews, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            candidate.save()
     
 class getInterviewerDataById(APIView):
     
     def get(self, request, *args, **kwargs):
     # def get(self, request):
-        techId=self.kwargs.get('pk')
+        resumeId=self.kwargs.get('resumeId')
         try:
-            interview = TechnicalInterviewTable.objects.get(id=techId)
+            interview = TechnicalInterviewTable.objects.get(resumeId=resumeId)
             serializer = getTechnicalInterviewSerializer(interview)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except TechnicalInterviewTable.DoesNotExist:

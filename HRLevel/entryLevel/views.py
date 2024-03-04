@@ -16,6 +16,10 @@ from HiringBackend.util.email import sendMail
 from HiringBackend.util.emailHtmlLoader import emailHtmlLoader
 from django.shortcuts import get_object_or_404
 from HiringBackend.util.apiResponse import APIResponse
+from django.shortcuts import render
+
+def index(request):
+    return render(request, 'resource/frontend.html')
 
 
 def applicants_without_any_constraints():
@@ -80,7 +84,7 @@ class updatedata(generics.UpdateAPIView):
         instance=self.get_object()
         userPayload = serializer.validated_data
         # unless submit, it need not move to technical interviewer
-        if userPayload.get('submissionStatus', None)=="SUBMITTED":
+        if userPayload.get('recruiterSubmissionStatus', None)=="SUBMITTED":
             # instance.currentStatus="IN_TECH"
             serializer.validated_data['currentStatus']='IN_TECH'
         else:
@@ -96,11 +100,11 @@ class updatedata(generics.UpdateAPIView):
         receipient=[]
         receipient.append(userPayload.get('email', None))
         content=None
-        if userPayload.get('shortlistStatus')=='NOT_SHORTLISTED':
+        if userPayload.get('shortlistStatus')==constants.NOTSHORTLISTED:
             subject=f' Application Status - {userPayload.get("jobRole", None)}'
             content=emailHtmlLoader.HrNotShortistedMail(userPayload)
             
-        elif userPayload.get('shortlistStatus')=='SHORTLISTED':
+        elif userPayload.get('shortlistStatus')==constants.SHORTLISTED:
             subject=f'Congratulations! You have Been Shortlisted - {userPayload.get("jobRole", None)}'
             content=emailHtmlLoader.HrShortistedMail(userPayload)
         mail=sendMail()
@@ -114,8 +118,8 @@ class getCandidateForRecruiter(APIView):
     def get(self, request, *args, **kwargs):
         empId=request.user.empId
         print(empId)
-        candidates=candidate_info.objects.filter(assigned=empId)
-        serializer = AllcandidateSerializer(candidates, many=True)
+        candidates=candidate_info.objects.filter(assigned=empId, shortlistStatus=(constants.SHORTLISTED))
+        serializer = candidateInfoSerializer(candidates, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 
