@@ -1,3 +1,4 @@
+from itertools import starmap
 from rest_framework import views, status
 from userManagement.models import user
 from HRLevel.models import candidate_info,meetingdata
@@ -37,15 +38,15 @@ class assign_resume_with_out_constraints(APIView):
             if count < len(users_id):
                 existing_resume = candidate_info.objects.get(resumeId=resume_data['resumeId'])
                 existing_resume.assigned = users_id[count]
-                # for mainting status like not assigned assigned verified   
+                # for mainting status like not assigned assigned verified
                 existing_resume.currentStatus=constants.ASSIGNED
-                
+
                 existing_resume.save()
                 count += 1
             else:
                 count = 0
         return Response({'message':'successfully created!'})
-                    
+
 class GetUnAssignedCandidates(APIView):
     permission_classes=[IsAuthenticated]
     def get(self, request):
@@ -62,24 +63,24 @@ class GetAUnassignedCandidate(APIView):
         except candidate_info.DoesNotExist:
             return Response({'message':f'no data found with this id {candidate_id}'})
             # return Response(APIResponse("uanble to get data"))
-        
+
         serializer=candidateInfoSerializer(candidate)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
 # class updatedata(generics.UpdateAPIView):
 #     queryset = candidate_info.objects.all()
 #     serializer_class = llmcandidateInfoserializer
 #     permission_classes = [IsAuthenticated]
-    
+
 class updatedata(generics.UpdateAPIView):
     serializer_class = llmcandidateInfoserializer
     permission_classes = [IsAuthenticated]
- 
+
     def get_object(self):
         resume_id = self.kwargs.get('resumeId')
         candidate = get_object_or_404(candidate_info, resumeId=resume_id)
         return candidate
-    
+
     def perform_update(self, serializer):
         instance=self.get_object()
         userPayload = serializer.validated_data
@@ -90,12 +91,12 @@ class updatedata(generics.UpdateAPIView):
         else:
             # instance.currentStatus="IN_ENTRY"
             serializer.validated_data['currentStatus']='ASSIGNED'
-        
+
         # print(submissionStatus)
         # instance.save()
         serializer.save()
         # print(type(userPayload))
-        
+
         subject=f' Application Status - {userPayload.get("jobRole", None)}'
         receipient=[]
         receipient.append(userPayload.get('email', None))
@@ -103,25 +104,25 @@ class updatedata(generics.UpdateAPIView):
         if userPayload.get('shortlistStatus')==constants.NOTSHORTLISTED:
             subject=f' Application Status - {userPayload.get("jobRole", None)}'
             content=emailHtmlLoader.HrNotShortistedMail(userPayload)
-            
+
         elif userPayload.get('shortlistStatus')==constants.SHORTLISTED:
             subject=f'Congratulations! You have Been Shortlisted - {userPayload.get("jobRole", None)}'
             content=emailHtmlLoader.HrShortistedMail(userPayload)
         mail=sendMail()
-        mail.sendMailtoReceipients(content, subject, receipient) 
-         
+        mail.sendMailtoReceipients(content, subject, receipient)
+
     # mail.send(content, subject, receipient)
 
 class getCandidateForRecruiter(APIView):
     permission_classes=[IsAuthenticated]
-    
+
     def get(self, request, *args, **kwargs):
         empId=request.user.empId
         print(empId)
         candidates=candidate_info.objects.filter(assigned=empId, shortlistStatus=(constants.SHORTLISTED))
         serializer = candidateInfoSerializer(candidates, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
 
 # class postMeetingData(APIView):
 #     permission_classes = [IsAuthenticated]
@@ -132,11 +133,13 @@ class getCandidateForRecruiter(APIView):
 #                 serializer = meetingdataSerializer(data= request.data)
 #                 if serializer.is_valid():
 #                     serializer.save()
-#                 return Response(serializer.data, status= status.HTTP_201_CREATED)
+#                     return Response(serializer.data, status= status.HTTP_201_CREATED)
+#                 else:
+#                     return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 #             except Exception as e:
 #                 return Response({"error" : str(e)},status= status.HTTP_500_INTERNAL_SERVER_ERROR )
-#         else: 
-#             try: 
+#         else:
+#             try:
 #                 id = request.data['id']
 #                 instance = meetingdata.objects.get(id = id)
 #                 serializer = meetingdataSerializer(instance, data= request.data, partial = True)
@@ -146,7 +149,7 @@ class getCandidateForRecruiter(APIView):
 
 #             except Exception as e:
 #                 return Response({"error" : str(e)},status= status.HTTP_500_INTERNAL_SERVER_ERROR )
-
+#
 
 class postMeetingData(APIView):
     permission_classes = [IsAuthenticated]
@@ -170,4 +173,24 @@ class postMeetingData(APIView):
 
         except Exception as e:
             print(str(e))
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class getspecificMeetingData(APIView):
+    def get(self,request,**kwargs):
+        try:
+            id = kwargs.get('id')
+            instance = meetingdata.objects.get(id = id)
+            serializer = meetingdataSerializer(instance)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class getallMeetingData(APIView):
+    def get(self,request,**kwargs):
+        try:
+
+            instance = meetingdata.objects.all()
+            serializer = meetingdataSerializer(instance , many = True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
