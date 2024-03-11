@@ -74,3 +74,12 @@ class evaluationdata(models.Model):
     shortlistStatus = models.CharField(max_length=50, null=True)
     remarks = models.CharField(max_length=1000,null=True)
     submissionStatus=models.CharField(max_length=50, null=True)
+
+class meetingdata(models.Model):
+    meetingURL = models.TextField()
+    candidate = models.CharField(max_length = 100)
+    date = models.DateField()
+    startTime = models.CharField(max_length =20)
+    endTime = models.CharField(max_length =20)
+    description = models.TextField()
+    

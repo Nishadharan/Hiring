@@ -1,8 +1,8 @@
 from rest_framework import views, status
 from userManagement.models import user
-from HRLevel.models import candidate_info
+from HRLevel.models import candidate_info,meetingdata
 from rest_framework.views import APIView
-from .serializer import (candidateInfoSerializer, AllcandidateSerializer, llmcandidateInfoserializer)
+from .serializer import (candidateInfoSerializer, AllcandidateSerializer, llmcandidateInfoserializer, meetingdataSerializer)
 from rest_framework.response import Response
 from HiringBackend.util import constants
 from rest_framework.permissions import IsAuthenticated
@@ -123,4 +123,27 @@ class getCandidateForRecruiter(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 
-        
+class postMeetingData(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        check = request.data.get('id', None)
+        if check == None:
+            try:
+                serializer = meetingdataSerializer(data= request.data)
+                if serializer.is_valid():
+                    serializer.save()
+                return Response(serializer.data, status= status.HTTP_201_CREATED)
+            except Exception as e:
+                return Response({"error" : str(e)},status= status.HTTP_500_INTERNAL_SERVER_ERROR )
+        else: 
+            try: 
+                id = request.data['id']
+                instance = meetingdata.objects.get(id = id)
+                serializer = meetingdataSerializer(instance, data= request.data, partial = True)
+                if serializer.is_valid():
+                    serializer.save()
+                return Response(serializer.data, status= status.HTTP_201_CREATED)
+
+            except Exception as e:
+                return Response({"error" : str(e)},status= status.HTTP_500_INTERNAL_SERVER_ERROR )
+
