@@ -123,27 +123,51 @@ class getCandidateForRecruiter(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 
+# class postMeetingData(APIView):
+#     permission_classes = [IsAuthenticated]
+#     def post(self, request):
+#         check = request.data.get('id', None)
+#         if check == None:
+#             try:
+#                 serializer = meetingdataSerializer(data= request.data)
+#                 if serializer.is_valid():
+#                     serializer.save()
+#                 return Response(serializer.data, status= status.HTTP_201_CREATED)
+#             except Exception as e:
+#                 return Response({"error" : str(e)},status= status.HTTP_500_INTERNAL_SERVER_ERROR )
+#         else: 
+#             try: 
+#                 id = request.data['id']
+#                 instance = meetingdata.objects.get(id = id)
+#                 serializer = meetingdataSerializer(instance, data= request.data, partial = True)
+#                 if serializer.is_valid():
+#                     serializer.save()
+#                 return Response(serializer.data, status= status.HTTP_201_CREATED)
+
+#             except Exception as e:
+#                 return Response({"error" : str(e)},status= status.HTTP_500_INTERNAL_SERVER_ERROR )
+
+
 class postMeetingData(APIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request):
-        check = request.data.get('id', None)
-        if check == None:
-            try:
-                serializer = meetingdataSerializer(data= request.data)
-                if serializer.is_valid():
-                    serializer.save()
-                return Response(serializer.data, status= status.HTTP_201_CREATED)
-            except Exception as e:
-                return Response({"error" : str(e)},status= status.HTTP_500_INTERNAL_SERVER_ERROR )
-        else: 
-            try: 
+        try:
+            check = request.data.get('id', None)
+            if check is None:
+                serializer = meetingdataSerializer(data=request.data)
+            else:
                 id = request.data['id']
-                instance = meetingdata.objects.get(id = id)
-                serializer = meetingdataSerializer(instance, data= request.data, partial = True)
-                if serializer.is_valid():
-                    serializer.save()
-                return Response(serializer.data, status= status.HTTP_201_CREATED)
+                instance = meetingdata.objects.get(id=id)
+                serializer = meetingdataSerializer(instance, data=request.data, partial=True)
 
-            except Exception as e:
-                return Response({"error" : str(e)},status= status.HTTP_500_INTERNAL_SERVER_ERROR )
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                print(serializer.errors)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+        except Exception as e:
+            print(str(e))
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
