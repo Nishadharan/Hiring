@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     "corsheaders",
-    
+
 ]
 
 MIDDLEWARE = [
@@ -108,7 +108,7 @@ WSGI_APPLICATION = 'HiringBackend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'hiring_test',
+        'NAME': 'hiring_dev',
         'USER': 'test',
         'PASSWORD':'Test@123',
         'HOST': '172.235.10.116',
