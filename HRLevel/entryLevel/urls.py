@@ -1,6 +1,6 @@
 from django.urls import path,include
 from HRLevel.entryLevel.views import (assign_resume_with_out_constraints, GetUnAssignedCandidates,
-                              GetAUnassignedCandidate, updatedata, getCandidateForRecruiter,postMeetingData,getallMeetingData,getspecificMeetingData
+                              GetAUnassignedCandidate, updatedata, getCandidateForRecruiter,postMeetingData,getallMeetingData,getspecificMeetingData,getEmail,sendEmail
                               )
 # getCandidateForInterviewer
 
@@ -18,6 +18,8 @@ urlpatterns = [
     path('createMeeting/', postMeetingData.as_view(), name='createMeeting'),
     path('getallMeetingdata', getallMeetingData.as_view(), name = 'getallMeetingdata'),
     path('getspecificMeetingdata', getspecificMeetingData.as_view(), name = 'getspecificMeetingdata'),
+    path('getemail',getEmail.as_view(),name= 'getemailapi'),
+    path('sendemail',sendEmail.as_view(),name= 'sendemailapi'),
 
     # path('sendMail/',SendEmailView.as_view(),name='SendEmailView'),
 ]

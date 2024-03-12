@@ -18,6 +18,9 @@ from HiringBackend.util.emailHtmlLoader import emailHtmlLoader
 from django.shortcuts import get_object_or_404
 from HiringBackend.util.apiResponse import APIResponse
 from django.shortcuts import render
+from .readEmail import read_mail
+from django.core.mail import send_mail
+
 
 def index(request):
     return render(request, 'resource/frontend.html')
@@ -192,5 +195,29 @@ class getallMeetingData(APIView):
             instance = meetingdata.objects.all()
             serializer = meetingdataSerializer(instance , many = True)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class getEmail(APIView):
+    def post(self, request):
+        userEmailAddress = request.data['recruiterMail']
+        emailAddress = request.data['candidateMail']
+        password = request.data['password']
+        response_json = read_mail(emailAddress,userEmailAddress,password)
+        return Response(response_json, status=status.HTTP_200_OK)
+
+class sendEmail(APIView):
+    def post(self, request):
+        try:
+            payload = request.data
+            subject = payload['subject']
+            from_email = payload['from']
+            recipient_list = payload ['to']
+            html_message = payload['body']
+            cc_list = payload.get('cclist',[])
+            recipient_list += cc_list
+
+            send_mail(subject, '', from_email, recipient_list, html_message=html_message)
+            return Response({"message" : "Your mail has been sent Successfully"},status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
