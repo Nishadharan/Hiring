@@ -5,7 +5,7 @@ import requests
 
 @shared_task
 def call_api_task():
-    api_url = 'https://example.com/api'  # Replace with your API endpoint
+    api_url = 'http://127.0.0.1:8000/email/readResume'  # Replace with your API endpoint
     response = requests.get(api_url)
     
     if response.status_code == 200:

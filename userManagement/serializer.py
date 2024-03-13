@@ -4,6 +4,7 @@ from .models import user, UserRoles
 from rest_framework.exceptions import AuthenticationFailed
 from HiringBackend.util.email import sendMail
 from HiringBackend.util.emailHtmlLoader import emailHtmlLoader
+from HRLevel.models import SourceMode
 
 
 class userRolesSerializer(serializers.ModelSerializer):
@@ -117,3 +118,7 @@ class ListOfInterviewerSerializer(serializers.ModelSerializer):
         model=user
         fields=['id', 'username','empId']
         
+class sourceModeSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = SourceMode
+        fields = "__all__"

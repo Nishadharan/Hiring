@@ -83,3 +83,4 @@ class meetingdata(models.Model):
     endTime = models.CharField(max_length =20)
     description = models.TextField()
     
+

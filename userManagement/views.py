@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from userManagement.serializer import (RegisterSerializer, loginSerializer, userRolesSerializer, 
                                        allUserSerializer,UpdateallUserSerializer, getUserSerializer,
-                                       ListOfInterviewerSerializer)
+                                       ListOfInterviewerSerializer, sourceModeSerializers)
 from rest_framework import generics, status, views, permissions, parsers
 from .models import user, UserRoles
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -16,6 +16,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from HiringBackend.util.email import sendMail
 from HiringBackend.util.emailHtmlLoader import emailHtmlLoader
+from HRLevel.models import SourceMode
 # Create your views here.
 class RegistrationView(generics.GenericAPIView):
     serializer_class = RegisterSerializer
@@ -123,4 +124,15 @@ class getListOfInterviewer(APIView):
         auser=user.objects.filter(roles__id=3)
         serializer=ListOfInterviewerSerializer(auser, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-        
+
+class getSourceMode(APIView):
+    def get(self, request):
+        instance = SourceMode.objects.all()
+        serializer = sourceModeSerializers(instance, many = True)
+        return Response(serializer.data, status= status.HTTP_200_OK)
+    
+class getListOfRecruiter(APIView):
+    def get(self, request, *args, **kwargs):
+        auser=user.objects.filter(roles__id=2)
+        serializer=ListOfInterviewerSerializer(auser, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
