@@ -18,6 +18,11 @@ class Status(models.Model):
     
     # resumeScore=models.PositiveIntegerField()
     # status like NOT_ASSIGNED, IN_ENTRY, IN_TECH, IN_FINAL, COMPLETED/
+
+# class interviewer(models.Model):
+#     empId = models.CharField( max_length = 20)
+#     def __str__(self):
+#         return self.empId
     
 class candidate_info(models.Model):
     
@@ -27,7 +32,8 @@ class candidate_info(models.Model):
     email = models.EmailField()
     assigned=models.CharField(max_length=50, null=True)
     assignedDate=models.DateField(null=True)
-    interviewer=models.CharField(max_length=50, null=True)
+    interviewer=models.CharField(max_length=50,null=True)
+    # interviewer = models.ManyToManyField(interviewer, null = True)
     interviewerAssignedDate=models.DateField(null=True)
     currentStatus=models.CharField(default="NOT_ASSIGNED",max_length=50, null=True)
     shortlistStatus=models.CharField(max_length=20, null=True)
@@ -64,13 +70,10 @@ class candidate_info(models.Model):
     def __str__(self):
         return self.name
     
-# class interviewer(models.Model):
-#     empId = models.CharField( max_length = 20)
+
 
 class evaluationdata(models.Model):
-    interviewer = models.CharField(max_length = 50)
-
- 
+    
     resumeId = models.CharField(unique=True, max_length=255)
     longTermAssocaition = models.CharField(max_length=500,null=True)
     # joinDate = models.CharField(max_length=50,null=True)

@@ -2,7 +2,7 @@
 from django.urls import path
 from .views import (RegistrationView, LoginView, GetAllUsersView, 
                     GetAllRolesView, statusOfCandidate, updateUser, GetUser,
-                    pauseResumeUser,activeInactiveUser, getListOfInterviewer,getListOfRecruiter,getSourceMode,getSummary)
+                    pauseResumeUser,activeInactiveUser, getListOfInterviewer,getListOfRecruiter,getSourceMode,getSummary,getInterviewerRemarks)
 urlpatterns = [
     path('register/', RegistrationView.as_view(), name='register'),
     path('updateUser/<int:pk>/', updateUser.as_view(), name='updateUser'),
@@ -17,4 +17,5 @@ urlpatterns = [
     path('getListOfRecruiter/',getListOfRecruiter.as_view(), name= "getListofRecruiter"),
     path('getSourceMode/', getSourceMode.as_view(), name="getSourceMode"),
     path('summary', getSummary.as_view(),name="summary"),
+    path('getinterviewerremarks/<str:resumeId>',getInterviewerRemarks.as_view(), name="getInterviewerRemarks")
 ]

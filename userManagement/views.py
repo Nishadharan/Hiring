@@ -170,15 +170,23 @@ class getSummary(APIView):
             instance3 = candidate_info.objects.get(resumeId = i['resumeId'])
             serializer3 = candidateInfoSerializer(instance3)
             list4.append(serializer3.data)
-        if list4 is  None:
-            return Response(serializer1.data , status=status.HTTP_200_OK)
-        elif serializer1.data is None :
-            return Response(list4 , status=status.HTTP_200_OK)
+        if not list4:
+            return Response(serializer1.data, status=status.HTTP_200_OK)
+        elif not serializer1.data:
+            return Response(list4, status=status.HTTP_200_OK)
         else: 
             resume_ids_list4 = {item['resumeId'] for item in list4}
             resume_ids_serializer1 = {item['resumeId'] for item in serializer1.data}
             common_resume_ids = resume_ids_list4.intersection(resume_ids_serializer1)   
             common_data_list4 = [item for item in list4 if item['resumeId'] in common_resume_ids]
             return Response({'common_data': common_data_list4}, status=status.HTTP_200_OK)
+
+class getInterviewerRemarks(APIView):
+    def get(self, request, **kwargs):
+        resumeId = kwargs.get('resumeId')
+        instance = TechnicalInterviewTable.objects.get(resumeId= resumeId)
+        serializer = TechnicalInterviewSerializer(instance)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
