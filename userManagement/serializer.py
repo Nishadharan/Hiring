@@ -7,6 +7,7 @@ from HiringBackend.util.emailHtmlLoader import emailHtmlLoader
 from HRLevel.models import SourceMode
 
 
+
 class userRolesSerializer(serializers.ModelSerializer):
     class Meta:
         model=UserRoles

@@ -63,7 +63,13 @@ class candidate_info(models.Model):
     resume_Link=models.CharField(max_length=1000, null=True)
     def __str__(self):
         return self.name
+    
+# class interviewer(models.Model):
+#     empId = models.CharField( max_length = 20)
+
 class evaluationdata(models.Model):
+    interviewer = models.CharField(max_length = 50)
+
  
     resumeId = models.CharField(unique=True, max_length=255)
     longTermAssocaition = models.CharField(max_length=500,null=True)

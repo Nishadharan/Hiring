@@ -17,6 +17,11 @@ from rest_framework import status
 from HiringBackend.util.email import sendMail
 from HiringBackend.util.emailHtmlLoader import emailHtmlLoader
 from HRLevel.models import SourceMode
+from HRLevel.entryLevel.serializer import candidateInfoSerializer
+from technicalLevel.models import TechnicalInterviewTable
+from technicalLevel.seriailzer import TechnicalInterviewSerializer
+
+
 # Create your views here.
 class RegistrationView(generics.GenericAPIView):
     serializer_class = RegisterSerializer
@@ -136,3 +141,44 @@ class getListOfRecruiter(APIView):
         auser=user.objects.filter(roles__id=2)
         serializer=ListOfInterviewerSerializer(auser, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class getSummary(APIView):
+    def post(self, request , **kwargs):
+        resumeId = request.data.get('resumeId',None)
+        name = request.data.get('candidateName', None)
+        resumeScore = request.data.get('resumeScore', None)
+        jobRole =request.data.get('jobRole', None)
+        appliedDate = request.data.get('fromDate', None)
+        ToDate = request.data.get('toDate', None)
+        assigned = request.data.get('recruiterName', None)
+        shortlistStatus = request.data.get('recruiterStatus', None)
+        assignedDate = request.data.get('recruiterDate', None)
+        interviewer = request.data.get('interviewerName', None)
+        interviewershortlistStatus = request.data.get('interviewerStatus', None)
+        interviewerAssignedDate = request.data.get('interviewerDate', None)
+        currentStatus = request.data.get('status', None)
+
+        list1 = {'resumeId':resumeId,'name':name,'resumeScore':resumeScore,'jobRole':jobRole,'appliedDate':appliedDate,'ToDate':ToDate,'assigned':assigned,'shortlistStatus':shortlistStatus,'assignedDate':assignedDate,'interviewer':interviewer,'interviewerAssignedDate':interviewerAssignedDate,'currentStatus':currentStatus}
+        list3 = {key: value for key, value in list1.items() if value is not None}
+
+        instance_candidateinfo = candidate_info.objects.filter(**list3)
+        serializer1 = candidateInfoSerializer(instance_candidateinfo, many= True)
+        instance_interviewertable = TechnicalInterviewTable.objects.filter(shortlistStatus= interviewershortlistStatus)
+        serializer2 = TechnicalInterviewSerializer(instance_interviewertable, many = True)
+        list4=[]
+        for i in serializer2.data:
+            instance3 = candidate_info.objects.get(resumeId = i['resumeId'])
+            serializer3 = candidateInfoSerializer(instance3)
+            list4.append(serializer3.data)
+        if list4 is  None:
+            return Response(serializer1.data , status=status.HTTP_200_OK)
+        elif serializer1.data is None :
+            return Response(list4 , status=status.HTTP_200_OK)
+        else: 
+            resume_ids_list4 = {item['resumeId'] for item in list4}
+            resume_ids_serializer1 = {item['resumeId'] for item in serializer1.data}
+            common_resume_ids = resume_ids_list4.intersection(resume_ids_serializer1)   
+            common_data_list4 = [item for item in list4 if item['resumeId'] in common_resume_ids]
+            return Response({'common_data': common_data_list4}, status=status.HTTP_200_OK)
+
+
